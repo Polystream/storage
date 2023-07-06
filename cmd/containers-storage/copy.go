@@ -13,9 +13,7 @@ import (
 	"github.com/containers/storage/pkg/mflag"
 )
 
-var (
-	chownOptions = ""
-)
+var chownOptions = ""
 
 func copyContent(flags *mflag.FlagSet, action string, m storage.Store, args []string) (int, error) {
 	var untarIDMappings *idtools.IDMappings
@@ -104,7 +102,7 @@ func init() {
 		maxArgs:     -1,
 		action:      copyContent,
 		addFlags: func(flags *mflag.FlagSet, cmd *command) {
-			flags.StringVar(&chownOptions, []string{"-chown", ""}, chownOptions, "Set owner on new copies")
+			flags.StringVar(&chownOptions, []string{"-chown", "o"}, chownOptions, "Set owner on new copies")
 			flags.BoolVar(&jsonOutput, []string{"-json", "j"}, jsonOutput, "Prefer JSON output")
 		},
 	})

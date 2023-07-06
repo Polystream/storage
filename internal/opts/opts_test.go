@@ -1,40 +1,40 @@
-package opts
+package opts_test
 
 import (
 	"fmt"
 	"strings"
 	"testing"
 
+	"github.com/containers/storage/internal/opts"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestValidateIPAddress(t *testing.T) {
-	if ret, err := ValidateIPAddress(`1.2.3.4`); err != nil || ret == "" {
+	if ret, err := opts.ValidateIPAddress(`1.2.3.4`); err != nil || ret == "" {
 		t.Fatalf("ValidateIPAddress(`1.2.3.4`) got %s %s", ret, err)
 	}
 
-	if ret, err := ValidateIPAddress(`127.0.0.1`); err != nil || ret == "" {
+	if ret, err := opts.ValidateIPAddress(`127.0.0.1`); err != nil || ret == "" {
 		t.Fatalf("ValidateIPAddress(`127.0.0.1`) got %s %s", ret, err)
 	}
 
-	if ret, err := ValidateIPAddress(`::1`); err != nil || ret == "" {
+	if ret, err := opts.ValidateIPAddress(`::1`); err != nil || ret == "" {
 		t.Fatalf("ValidateIPAddress(`::1`) got %s %s", ret, err)
 	}
 
-	if ret, err := ValidateIPAddress(`127`); err == nil || ret != "" {
+	if ret, err := opts.ValidateIPAddress(`127`); err == nil || ret != "" {
 		t.Fatalf("ValidateIPAddress(`127`) got %s %s", ret, err)
 	}
 
-	if ret, err := ValidateIPAddress(`random invalid string`); err == nil || ret != "" {
+	if ret, err := opts.ValidateIPAddress(`random invalid string`); err == nil || ret != "" {
 		t.Fatalf("ValidateIPAddress(`random invalid string`) got %s %s", ret, err)
 	}
-
 }
 
 func TestMapOpts(t *testing.T) {
 	tmpMap := make(map[string]string)
-	o := NewMapOpts(tmpMap, logOptsValidator)
+	o := opts.NewMapOpts(tmpMap, logOptsValidator)
 	err := o.Set("max-size=1")
 	require.NoError(t, err)
 	if o.String() != "map[max-size:1]" {
@@ -60,7 +60,7 @@ func TestMapOpts(t *testing.T) {
 }
 
 func TestListOptsWithoutValidator(t *testing.T) {
-	o := NewListOpts(nil)
+	o := opts.NewListOpts(nil)
 	err := o.Set("foo")
 	require.NoError(t, err)
 	if o.String() != "[foo]" {
@@ -94,12 +94,11 @@ func TestListOptsWithoutValidator(t *testing.T) {
 	if len(mapListOpts) != 1 {
 		t.Errorf("Expected [map[bar:{}]], got [%v]", mapListOpts)
 	}
-
 }
 
 func TestListOptsWithValidator(t *testing.T) {
 	// Re-using logOptsvalidator (used by MapOpts)
-	o := NewListOpts(logOptsValidator)
+	o := opts.NewListOpts(logOptsValidator)
 	err := o.Set("foo")
 	assert.EqualError(t, err, "invalid key foo")
 	if o.String() != "[]" {
@@ -128,18 +127,18 @@ func TestListOptsWithValidator(t *testing.T) {
 }
 
 func TestValidateLabel(t *testing.T) {
-	if _, err := ValidateLabel("label"); err == nil || err.Error() != "bad attribute format: label" {
+	if _, err := opts.ValidateLabel("label"); err == nil || err.Error() != "bad attribute format: label" {
 		t.Fatalf("Expected an error [bad attribute format: label], go %v", err)
 	}
-	if actual, err := ValidateLabel("key1=value1"); err != nil || actual != "key1=value1" {
+	if actual, err := opts.ValidateLabel("key1=value1"); err != nil || actual != "key1=value1" {
 		t.Fatalf("Expected [key1=value1], got [%v,%v]", actual, err)
 	}
 	// Validate it's working with more than one =
-	if actual, err := ValidateLabel("key1=value1=value2"); err != nil {
+	if actual, err := opts.ValidateLabel("key1=value1=value2"); err != nil {
 		t.Fatalf("Expected [key1=value1=value2], got [%v,%v]", actual, err)
 	}
 	// Validate it's working with one more
-	if actual, err := ValidateLabel("key1=value1=value2=value3"); err != nil {
+	if actual, err := opts.ValidateLabel("key1=value1=value2=value3"); err != nil {
 		t.Fatalf("Expected [key1=value1=value2=value2], got [%v,%v]", actual, err)
 	}
 }
@@ -155,7 +154,7 @@ func logOptsValidator(val string) (string, error) {
 
 func TestNamedListOpts(t *testing.T) {
 	var v []string
-	o := NewNamedListOptsRef("foo-name", &v, nil)
+	o := opts.NewNamedListOptsRef("foo-name", &v, nil)
 
 	err := o.Set("foo")
 	require.NoError(t, err)
@@ -172,7 +171,7 @@ func TestNamedListOpts(t *testing.T) {
 
 func TestNamedMapOpts(t *testing.T) {
 	tmpMap := make(map[string]string)
-	o := NewNamedMapOpts("max-name", tmpMap, nil)
+	o := opts.NewNamedMapOpts("max-name", tmpMap, nil)
 
 	err := o.Set("max-size=1")
 	require.NoError(t, err)

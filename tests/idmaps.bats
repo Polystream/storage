@@ -3,6 +3,11 @@
 load helpers
 
 @test "idmaps-create-apply-layer" {
+	# This test needs "tar".
+	if test -z "$(which tar 2> /dev/null)" ; then
+		skip "need tar"
+	fi
+
 	if [ "$OS" != "Linux" ]; then
 		skip "not supported on $OS"
 	fi
@@ -112,6 +117,11 @@ load helpers
 }
 
 @test "idmaps-create-diff-layer" {
+	# This test needs "tar".
+	if test -z "$(which tar 2> /dev/null)" ; then
+		skip "need tar"
+	fi
+
 	if [ "$OS" != "Linux" ]; then
 		skip "not supported on $OS"
 	fi
@@ -574,6 +584,11 @@ load helpers
 }
 
 @test "idmaps-create-mapped-image" {
+	# This test needs "tar".
+	if test -z "$(which tar 2> /dev/null)" ; then
+		skip "need tar"
+	fi
+
 	if [ "$OS" != "Linux" ]; then
 		skip "not supported on $OS"
 	fi
@@ -853,6 +868,10 @@ load helpers
 		[ "$output" != "" ]
 		mount="$output"
 
+		uid=$(stat -c %u ${mount})
+		gid=$(stat -c %g ${mount})
+		test ${uid}:${gid} = ${uidrange[$i]}:${gidrange[$i]}
+
 		for j in $(seq $n) ; do
 			ownerids=$(stat -c %u:%g ${mount}/file$j)
 			echo on-disk IDs: "$ownerids"
@@ -964,6 +983,11 @@ load helpers
 }
 
 @test "idmaps-create-layer-from-another-image-store" {
+	# This test needs "tar".
+	if test -z "$(which tar 2> /dev/null)" ; then
+		skip "need tar"
+	fi
+
 	if [ "$OS" != "Linux" ]; then
 		skip "not supported on $OS"
 	fi
